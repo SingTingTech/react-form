@@ -1,0 +1,85 @@
+.form-editor {
+    display: flex;
+    flex: 1;
+    height: 100%;
+}
+
+.component-list {
+    position: relative;
+    width: 275px;
+    padding: 57px 20px 0;
+    border-radius: 4px;
+    background: #FFFFFF;
+    overflow: auto;
+    height: 100%;
+}
+
+.dynamic-form {
+    width: 100%;
+    border-radius: 8px;
+    background: #FFFFFF;
+    padding: 12px 12px;
+}
+
+.add-hint {
+    height: 200px;
+    line-height: 200px;
+    text-align: center;
+}
+
+.preview {
+    background: #F9FAFC;
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    padding: 20px 20px 0;
+    width: 100%;
+}
+
+.form-item-container {
+    position: relative;
+    border-radius: 8px;
+    padding: 12px 12px;
+}
+
+.form-item-container:hover {
+    background: aliceblue;
+}
+
+.selected, .selected:hover {
+    background: #eff3fd;
+}
+
+.action-group {
+    position: absolute;
+    top: -5px;
+    right: 20px;
+    border-radius: 8px;
+    background-color: #FFFFFF;
+    display: none;
+    color: #767e89
+}
+
+.copy {
+    border-right: 1px solid gray;
+}
+
+.copy:hover {
+    color: forestgreen;
+}
+
+.delete:hover {
+    color: orangered;
+}
+
+.copy, .delete {
+    color: inherit;
+    padding: 0 7px;
+}
+
+.form-item-container:hover > .action-group {
+    display: block;
+}
+.selected > .action-group {
+    display: block;
+}

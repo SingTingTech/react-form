@@ -1,0 +1,15 @@
+{
+  "short_name": "Form-ui",
+  "name": "form creator",
+  "icons": [
+    {
+      "src": "logo.svg",
+      "type": "xml/svg",
+      "sizes": "192x192"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
+}
