@@ -64,6 +64,12 @@ export class InputPropsEditor<
               }
             />
           </Item>
+          <Item label={'默认值'}>
+            <Input
+              value={this.state.value}
+              onChange={(e) => this.onValueChange(e.target.value, 'value')}
+            />
+          </Item>
         </Form>
       </>
     )

@@ -26,6 +26,8 @@ interface ComponentRegisterEntry<P extends {}> {
   component: FunctionComponent<P> | ComponentClass<P>
   propsEditor: FunctionComponent<d> | ComponentClass<d>
   defaultProps: P
+  extraStyle: { [index: string]: string & {} }
+  extraProps: { [index: string]: any }
   defaultLabel: string
 }
 
@@ -40,13 +42,16 @@ export function registerComponent<P extends {}>(
     defaultProps: registerEntry.defaultProps,
     defaultLabel: registerEntry.defaultLabel,
     getComponent: (config: FormItemConfig) => {
+      let props = Object.assign({}, config.props, registerEntry.extraProps)
+      props.style = Object.assign({}, props.style, registerEntry.extraStyle)
       return (
         <Item
           label={config.labelName}
           required={config.required}
           className={'dynamic-form-item'}
+          style={props}
         >
-          {React.createElement(registerEntry.component, config.props)}
+          {React.createElement(registerEntry.component, props)}
         </Item>
       )
     },
@@ -60,4 +65,11 @@ registerComponent({
   propsEditor: InputPropsEditor,
   defaultProps: { placeholder: '请输入' },
   defaultLabel: '文本',
+  extraStyle: {
+    backgroundColor: '#FFFFFF',
+    cursor: 'auto',
+  },
+  extraProps: {
+    disabled: true,
+  },
 })

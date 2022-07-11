@@ -1,4 +1,4 @@
-import { Button, Drawer, Form, Input } from 'antd'
+import { Button, Drawer, Form, message } from 'antd'
 import './formeditor.css'
 import update from 'immutability-helper'
 import { FormItemConfig } from './types'
@@ -172,6 +172,10 @@ class FormEditor extends Component {
     this.setState({ visible: false })
   }
 
+  showComponents = () => {
+    message.info(JSON.stringify(this.state.components))
+  }
+
   render() {
     return (
       <div className="form-editor">
@@ -179,6 +183,7 @@ class FormEditor extends Component {
           <Button onClick={() => this.addFormItem({ type: 'input' })}>
             Input
           </Button>
+          <Button onClick={() => this.showComponents()}>show components</Button>
         </div>
         <div
           className={this.state.visible ? 'preview drawer-opened' : 'preview'}
