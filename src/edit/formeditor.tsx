@@ -5,6 +5,7 @@ import { FormItemConfig } from './types'
 import { getComponentConfig } from './ComponentRegistry'
 import React, { PropsWithChildren } from 'react'
 import { CopyOutlined, DeleteOutlined } from '@ant-design/icons'
+import { SortableList } from './SortableList'
 
 const { Component } = React
 
@@ -20,8 +21,8 @@ class FormItem extends Component<FormItemConfig> {
 
 class PreviewFormItemContainer extends Component<
   PropsWithChildren<{
-    onDelete: () => void
-    onCopy: () => void
+    onDelete: (e: React.MouseEvent) => void
+    onCopy: (e: React.MouseEvent) => void
     onClick: () => void
     selected: boolean
   }>
@@ -38,7 +39,7 @@ class PreviewFormItemContainer extends Component<
       >
         {this.props.children}
         <div className="action-group">
-          <a className="copy" onClick={this.props.onCopy}>
+          <a className="copy" onClick={(e) => this.props.onCopy(e)}>
             <i style={{ color: 'inherit' }}>
               <CopyOutlined />
             </i>
@@ -69,7 +70,8 @@ class FormEditor extends Component {
     return this.idGenerator++
   }
 
-  addFormItem = (type: string) => {
+  addFormItem = (type: string, event?: React.MouseEvent) => {
+    event?.stopPropagation()
     let components = this.state.components
     let config: FormItemConfig = {
       labelName: getComponentConfig(type).defaultLabel,
@@ -85,7 +87,8 @@ class FormEditor extends Component {
       components: components,
     })
   }
-  deleteFormItem = (formItemId: number) => {
+  deleteFormItem = (formItemId: number, event?: React.MouseEvent) => {
+    event?.stopPropagation()
     let components = this.state.components
     components = components.filter((l) => l.formItemId !== formItemId)
     this.setState({
@@ -125,18 +128,25 @@ class FormEditor extends Component {
               {this.state.components.length === 0 ? (
                 <div className="add-hint">add components</div>
               ) : (
-                this.state.components.map((x) => (
-                  <PreviewFormItemContainer
-                    onCopy={() => this.addFormItem(x.type)}
-                    onDelete={() => this.deleteFormItem(x.formItemId)}
-                    selected={x.selected}
-                    onClick={() => {
-                      this.setSelected(x.formItemId)
-                    }}
-                  >
-                    {React.createElement(FormItem, x)}
-                  </PreviewFormItemContainer>
-                ))
+                <div>
+                  <SortableList
+                    items={this.state.components.map((x) => ({
+                      id: x.formItemId,
+                      item: (
+                        <PreviewFormItemContainer
+                          onCopy={(e) => this.addFormItem(x.type, e)}
+                          onDelete={(e) => this.deleteFormItem(x.formItemId, e)}
+                          selected={x.selected}
+                          onClick={() => {
+                            this.setSelected(x.formItemId)
+                          }}
+                        >
+                          {React.createElement(FormItem, x)}
+                        </PreviewFormItemContainer>
+                      ),
+                    }))}
+                  />
+                </div>
               )}
             </Form>
           </div>
@@ -149,11 +159,7 @@ class FormEditor extends Component {
           forceRender={true}
           visible={this.state.visible}
         >
-          <Input
-            placeholder={this.state.components
-              .filter((l) => l.selected)[0]
-              ?.formItemId.toString()}
-          />
+          <Input placeholder={this.state.selected?.formItemId.toString()} />
         </Drawer>
       </div>
     )

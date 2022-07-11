@@ -8,24 +8,6 @@ export default ({ mode }) => {
     server: {
       port: 8080,
       host: '0.0.0.0',
-      proxy: {
-        '/api/hris-data': {
-          target: process.env.VITE_APP_HRIS_USER_DATA_URL,
-          changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/api\/hris-data/, ''),
-        },
-        '/api/int': {
-          target: process.env.VITE_APP_INT_URL,
-          changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/api\/int/, ''),
-        },
-
-        '/api': {
-          target: process.env.VITE_APP_TEACHER_URL,
-          changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/api/, ''),
-        },
-      },
     },
     css: {
       preprocessorOptions: {
