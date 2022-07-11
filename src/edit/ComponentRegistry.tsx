@@ -5,20 +5,26 @@ import React, {
 } from 'react'
 import { Form, Input } from 'antd'
 import { FormItemConfig } from './types'
+import { InputPropsEditor } from './propsEditors/InputPropsEditor'
 
 const { Item } = Form
-
+type d = {
+  onEditProp: (prop: string, value: any) => void
+  onEditComponentProp: (prop: string, value: any) => void
+}
 const componentsRegistry: {
   [index: string]: {
     defaultProps: {}
     defaultLabel: string
     getComponent: (props: any) => ReactComponentElement<any>
+    propsEditor: FunctionComponent<d> | ComponentClass<d>
   }
 } = {}
 
 interface ComponentRegisterEntry<P extends {}> {
   name: string
-  component: FunctionComponent<P> | ComponentClass<P> | string
+  component: FunctionComponent<P> | ComponentClass<P>
+  propsEditor: FunctionComponent<d> | ComponentClass<d>
   defaultProps: P
   defaultLabel: string
 }
@@ -44,12 +50,14 @@ export function registerComponent<P extends {}>(
         </Item>
       )
     },
+    propsEditor: registerEntry.propsEditor,
   }
 }
 
 registerComponent({
   name: 'input',
   component: Input,
+  propsEditor: InputPropsEditor,
   defaultProps: { placeholder: '请输入' },
   defaultLabel: '文本',
 })

@@ -1,4 +1,3 @@
-import update from 'immutability-helper'
 import { FC, ReactNode, useEffect, useRef } from 'react'
 import { useCallback, useState } from 'react'
 import { useDrag, useDrop } from 'react-dnd'
@@ -107,28 +106,15 @@ export interface Item {
   id: number
   item: ReactNode
 }
-
 export interface SortListProps<T> {
+  onMoveCard: (dragIndex: number, hoverIndex: number) => void
   items: Item[]
 }
 
 export function SortableList<T extends ReactNode>(props: SortListProps<T>) {
   {
     const { items } = props
-    const [cards, setCards] = useState(items)
-    useEffect(() => {
-      setCards(props.items)
-    }, [props.items])
-    const moveCard = useCallback((dragIndex: number, hoverIndex: number) => {
-      setCards((prevCards: Item[]) =>
-        update(prevCards, {
-          $splice: [
-            [dragIndex, 1],
-            [hoverIndex, 0, prevCards[dragIndex] as Item],
-          ],
-        })
-      )
-    }, [])
+    const moveCard = props.onMoveCard
 
     const renderCard = useCallback(
       (card: { id: number; item: ReactNode }, index: number) => {
@@ -148,7 +134,7 @@ export function SortableList<T extends ReactNode>(props: SortListProps<T>) {
     return (
       <>
         <DndProvider backend={HTML5Backend}>
-          <div>{cards.map((card, i) => renderCard(card, i))}</div>
+          <div>{items.map((card, i) => renderCard(card, i))}</div>
         </DndProvider>
       </>
     )

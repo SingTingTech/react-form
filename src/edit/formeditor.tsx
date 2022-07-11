@@ -1,6 +1,6 @@
 import { Button, Drawer, Form, Input } from 'antd'
 import './formeditor.css'
-
+import update from 'immutability-helper'
 import { FormItemConfig } from './types'
 import { getComponentConfig } from './ComponentRegistry'
 import React, { PropsWithChildren } from 'react'
@@ -55,12 +55,14 @@ class PreviewFormItemContainer extends Component<
   }
 }
 
+interface FormEditorState {
+  components: FormItemConfig[]
+  visible: boolean
+  selected?: FormItemConfig
+}
+
 class FormEditor extends Component {
-  state: {
-    components: FormItemConfig[]
-    visible: boolean
-    selected?: FormItemConfig
-  } = {
+  state: FormEditorState = {
     components: [],
     visible: false,
   }
@@ -70,29 +72,48 @@ class FormEditor extends Component {
     return this.idGenerator++
   }
 
-  addFormItem = (type: string, event?: React.MouseEvent) => {
+  addFormItem = (
+    sourceConfig: Partial<FormItemConfig>,
+    event?: React.MouseEvent
+  ) => {
     event?.stopPropagation()
     let components = this.state.components
-    let config: FormItemConfig = {
-      labelName: getComponentConfig(type).defaultLabel,
-      formItemId: this.requireFieldId(),
-      required: false,
-      type: type,
-      selected: false,
-      props: getComponentConfig(type).defaultProps,
+    const { type } = sourceConfig
+    if (!type) {
+      return
     }
-
+    let config: FormItemConfig = {
+      labelName:
+        sourceConfig.labelName || getComponentConfig(type).defaultLabel,
+      formItemId: this.requireFieldId(),
+      required: sourceConfig.required || false,
+      type: type,
+      selected: true,
+      props: Object.assign(
+        {},
+        sourceConfig.props || getComponentConfig(type).defaultProps
+      ),
+    }
+    components.forEach((x) => {
+      x.selected = false
+    })
     components.push(config)
+
     this.setState({
       components: components,
+      selected: config,
     })
   }
   deleteFormItem = (formItemId: number, event?: React.MouseEvent) => {
     event?.stopPropagation()
     let components = this.state.components
     components = components.filter((l) => l.formItemId !== formItemId)
+    let isSelected = formItemId === this.state.selected?.formItemId
+
     this.setState({
       components: components,
+      visible: this.state.visible && !isSelected,
+      selected: isSelected ? null : this.state.selected,
     })
   }
 
@@ -111,6 +132,41 @@ class FormEditor extends Component {
       selected: selected,
     })
   }
+  updateProps = (id: number, prop: string, value: any) => {
+    let components = this.state.components
+    components.forEach((x) => {
+      if (x.selected) {
+        x.props[prop] = value
+      }
+    })
+    this.setState(components)
+  }
+  updateComponentProp = (id: number, prop: string, value: any) => {
+    let components = this.state.components
+    components.forEach((x: any) => {
+      if (x.selected) {
+        x[prop] = value
+      }
+    })
+    this.setState(components)
+  }
+
+  renderDrawer = () => {
+    if (!this.state.selected) {
+      return undefined
+    }
+    const selected = this.state.selected
+    return React.createElement(getComponentConfig(selected.type).propsEditor, {
+      ...selected,
+      ...selected.props,
+      onEditProp: (prop: string, value: any) => {
+        this.updateProps(selected.formItemId, prop, value)
+      },
+      onEditComponentProp: (prop: string, value: any) => {
+        this.updateComponentProp(selected.formItemId, prop, value)
+      },
+    })
+  }
 
   onCloseEdit = () => {
     this.setState({ visible: false })
@@ -120,9 +176,13 @@ class FormEditor extends Component {
     return (
       <div className="form-editor">
         <div className="component-list">
-          <Button onClick={() => this.addFormItem('input')}>Input</Button>
+          <Button onClick={() => this.addFormItem({ type: 'input' })}>
+            Input
+          </Button>
         </div>
-        <div className="preview">
+        <div
+          className={this.state.visible ? 'preview drawer-opened' : 'preview'}
+        >
           <div style={{ display: 'inline', width: '100%', maxWidth: '900px' }}>
             <Form className="dynamic-form" layout="vertical">
               {this.state.components.length === 0 ? (
@@ -134,7 +194,7 @@ class FormEditor extends Component {
                       id: x.formItemId,
                       item: (
                         <PreviewFormItemContainer
-                          onCopy={(e) => this.addFormItem(x.type, e)}
+                          onCopy={(e) => this.addFormItem(x, e)}
                           onDelete={(e) => this.deleteFormItem(x.formItemId, e)}
                           selected={x.selected}
                           onClick={() => {
@@ -145,6 +205,16 @@ class FormEditor extends Component {
                         </PreviewFormItemContainer>
                       ),
                     }))}
+                    onMoveCard={(dragIndex: number, hoverIndex: number) => {
+                      this.setState((s: FormEditorState) => ({
+                        components: update(s.components, {
+                          $splice: [
+                            [dragIndex, 1],
+                            [hoverIndex, 0, s.components[dragIndex]],
+                          ],
+                        }),
+                      }))
+                    }}
                   />
                 </div>
               )}
@@ -159,7 +229,7 @@ class FormEditor extends Component {
           forceRender={true}
           visible={this.state.visible}
         >
-          <Input placeholder={this.state.selected?.formItemId.toString()} />
+          {this.renderDrawer()}
         </Drawer>
       </div>
     )
