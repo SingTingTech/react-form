@@ -1,22 +1,20 @@
-import logo from '../logo.svg'
-import './App.css'
-import React from 'react'
-import {FormEditor} from "./edit";
+import logo from "../logo.svg";
+import "./App.css";
+import React from "react";
+import { FormEditor } from "./edit";
 
 class App extends React.Component {
-    state = {
-        count: 0
-    }
+  state = {
+    count: 0,
+  };
 
-    constructor(props: any) {
-        super(props)
-    }
+  constructor(props: any) {
+    super(props);
+  }
 
-
-    render() {
-        return (<FormEditor/>);
-    }
+  render() {
+    return <FormEditor />;
+  }
 }
 
-
-export default App
+export default App;

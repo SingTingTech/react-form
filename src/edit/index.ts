@@ -1,1 +1,1 @@
-export { default as FormEditor} from './formeditor'
+export { default as FormEditor } from "./formeditor";

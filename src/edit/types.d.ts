@@ -1,10 +1,10 @@
-import {PropsWithChildren} from "react";
+import { PropsWithChildren } from "react";
 
 interface FormItemConfig extends PropsWithChildren {
-    formItemId: number,
-    selected: boolean;
-    labelName: string,
-    required: boolean,
-    type: string,
-    props: any
+  formItemId: number;
+  selected: boolean;
+  labelName: string;
+  required: boolean;
+  type: string;
+  props: any;
 }
